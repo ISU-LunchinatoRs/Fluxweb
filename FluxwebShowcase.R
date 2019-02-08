@@ -35,7 +35,7 @@ detach(groups.level)
 #### Fluxing ####
 attach(species.level)
 # Define metabolic losses
-# General allometric equation (Brown et al. 2004)
+# General allometric equation (Brown et al. 2004_"Toward a Metabolic Theory of Ecology")
 met.rates = 0.71*bodymasses^-0.25
 
 # Efficiencies are already defined in the efficiencies vector 
@@ -54,7 +54,7 @@ names[basals]
 plants = basals 
 plants[which(names =='dead organic matter' | names == 'root exudates')] = FALSE 
 
-# Herbivory is defined as the sum of fluxes outgoing from plant 
+# Herbivory is defined as the sum of fluxes outgoing from plants
 ## consumers 
 herbivory = sum(rowSums(mat.fluxes[plants, ]))
 # Carnivory is defined as the sum of fluxes outgoing from animals 
@@ -83,7 +83,8 @@ species <- species.level
 ## function as before 
 # But we can modify the function for various purposes 
 species.fluxes <- fluxing(species$mat, species$biomasses, met.rates, species$efficiencies, bioms.prefs = TRUE, bioms.losses = TRUE, ef.level = "prey")
-# bioms.prefs specifies that species preferences depend on prey 
+
+# bioms.prefs specifies that species preferences depend on prey
 ## abundances
 
 # bioms.losses is set to TRUE to compute metabolic losses for
@@ -105,10 +106,23 @@ growth.rates
 losses = 0.71 * species$bodymasses^(-0.25)
 
 #Stability of food web 
+#More Negative = More Stable
+
+## Maximum eigenvalue of the Jacobian matrix of a Lotka voltera like system of equations 
+## Can get all eigenvalues and eigenvectors if you want 
+##The more negative, the more stable
 stability.value(val.mat = species.fluxes, species$biomasses, losses, species$efficiencies, growth.rates, bioms.prefs = TRUE, bioms.losses = TRUE, ef.level = "prey")
 
-#### Sensitivity Analysis #### 
+
+#Use a scalar value multiplied against the losses term to see ## which value gives a stability of 0 (move from stable to unstable)
+make.stability(val.mat = species.fluxes, species$biomasses, losses, species$efficiencies, growth.rates, bioms.prefs = TRUE, bioms.losses = TRUE, ef.level = "prey")
+
+#function doesn't apply in this case 
+
+#### Sensitivity Analysis ####
+rm(list=ls())
 attach(species.level)
+load("species.level.RData")
 set.seed(12)
 losses = 0.71*bodymasses^-0.25
 
@@ -144,6 +158,7 @@ for (var in seq(0, 0.12, 0.01)){
                     efficiencies = efficiencies)
   sd.cvs.mat = c(sd.cvs.mat, mean(res[[2]], na.rm = T))
 }
+
 # Plot 
 windows(height=6, width=7)
 par(mai=c(1,1.25,0.25,0.25))
